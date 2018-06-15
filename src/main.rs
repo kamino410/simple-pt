@@ -50,21 +50,35 @@ struct Scene {
 }
 
 impl Scene {
-    fn intersect(&self, ray: &Ray, tmin: f64, tmax: f64) -> Option<Hit> {
-        let mut tmax = tmax;
-        let mut res: Option<Hit> = None;
+    fn intersect(&self, ray: &Ray, tmin: f64, tmax: f64) -> Option<SurfInfo> {
+        let mut t = tmax;
+        let mut sphere: Option<&Sphere> = None;
         for s in &self.spheres {
-            let h = s.intersect(ray, tmin, tmax);
+            let h = s.intersect(ray, tmin, t);
             match h {
                 Some(val) => {
-                    tmax = val.t;
-                    res = Some(val);
+                    t = val.t;
+                    sphere = val.sphere;
                 }
                 None => continue,
             }
         }
-        res
+        match sphere {
+            Some(s) => {
+                let p = ray.o + ray.d * t;
+                let n = (p - s.p) / s.r;
+                Some(SurfInfo { t, p, n, sphere })
+            }
+            None => None,
+        }
     }
+}
+
+struct SurfInfo<'a> {
+    t: f64,
+    p: Vector3<f64>,
+    n: Vector3<f64>,
+    sphere: Option<&'a Sphere>,
 }
 
 fn main() {
