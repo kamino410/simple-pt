@@ -90,10 +90,16 @@ fn main() {
     const W: u32 = 1200;
     const H: u32 = 800;
 
-    let spheres = vec![Sphere {
-        p: Vector3::new(0.0, 0.0, 0.0),
-        r: 1.0,
-    }];
+    let spheres = vec![
+        Sphere {
+            p: Vector3::new(-0.5, 0.0, 0.0),
+            r: 1.0,
+        },
+        Sphere {
+            p: Vector3::new(0.5, 0.0, 0.0),
+            r: 1.0,
+        },
+    ];
     let scene = Scene { spheres };
 
     let mut img = RgbImage::new(W, H);
