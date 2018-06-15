@@ -19,7 +19,7 @@ impl Sphere {
         let op = self.p - ray.o;
         let b = Vector3::dot(&op, &ray.d);
         let det = b * b - Vector3::dot(&op, &op) + self.r * self.r;
-        if det < 0f64 {
+        if det < 0.0 {
             return None;
         }
         let t1 = b - det.sqrt();
@@ -86,8 +86,8 @@ fn main() {
     const H: u32 = 800;
 
     let spheres = vec![Sphere {
-        p: Vector3::new(0f64, 0f64, 0f64),
-        r: 1f64,
+        p: Vector3::new(0.0, 0.0, 0.0),
+        r: 1.0,
     }];
     let scene = Scene { spheres };
 
@@ -97,11 +97,11 @@ fn main() {
             let w = W as f64;
             let h = H as f64;
             let ray = Ray {
-                o: Vector3::new(2f64 * x as f64 / w - 1f64, 2f64 * y as f64 / h - 1f64, 5f64),
-                d: Vector3::new(0f64, 0f64, -1f64),
+                o: Vector3::new(2.0 * x as f64 / w - 1.0, 2.0 * y as f64 / h - 1.0, 5.0),
+                d: Vector3::new(0.0, 0.0, -1.0),
             };
 
-            let h = scene.intersect(&ray, 0f64, 1e10);
+            let h = scene.intersect(&ray, 0.0, 1e10);
             match h {
                 Some(_) => img.put_pixel(x, y, Pixel::from_channels(255, 0, 255, 255)),
                 None => img.put_pixel(x, y, Pixel::from_channels(0, 0, 0, 0)),
