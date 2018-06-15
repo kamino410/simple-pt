@@ -90,8 +90,8 @@ fn main() {
     const W: u32 = 1200;
     const H: u32 = 800;
 
-    let eye = Vector3::new(5.0, 5.0, 5.0);
-    let center = Vector3::new(0.0, 0.0, 0.0);
+    let eye = Vector3::new(50.0, 52.0, 295.6);
+    let center = eye + Vector3::new(0.0, -0.042612, -1.0);
     let up = Vector3::new(0.0, 1.0, 0.0);
     let fov = 30.0 * 3.141593 / 180.0;
     let aspect = W as f64 / H as f64;
@@ -101,12 +101,36 @@ fn main() {
 
     let spheres = vec![
         Sphere {
-            p: Vector3::new(-0.5, 0.0, 0.0),
-            r: 1.0,
+            p: Vector3::new(1e5 + 1.0, 40.8, 81.6),
+            r: 1e5,
         },
         Sphere {
-            p: Vector3::new(0.5, 0.0, 0.0),
-            r: 1.0,
+            p: Vector3::new(-1e5 + 99.0, 40.8, 81.6),
+            r: 1e5,
+        },
+        Sphere {
+            p: Vector3::new(50.0, 40.8, 1e5),
+            r: 1e5,
+        },
+        Sphere {
+            p: Vector3::new(50.0, 1e5, 81.6),
+            r: 1e5,
+        },
+        Sphere {
+            p: Vector3::new(50.0, -1e5 + 81.6, 81.6),
+            r: 1e5,
+        },
+        Sphere {
+            p: Vector3::new(27.0, 16.5, 47.0),
+            r: 16.5,
+        },
+        Sphere {
+            p: Vector3::new(73.0, 16.5, 78.0),
+            r: 16.5,
+        },
+        Sphere {
+            p: Vector3::new(50.0, 681.6 - 0.27, 81.6),
+            r: 600.0,
         },
     ];
     let scene = Scene { spheres };
@@ -128,7 +152,12 @@ fn main() {
                 Some(h) => img.put_pixel(
                     x,
                     H - y - 1,
-                    Pixel::from_channels(tonemap(h.n.x), tonemap(h.n.y), tonemap(h.n.z), 255),
+                    Pixel::from_channels(
+                        tonemap(h.n.x.abs()),
+                        tonemap(h.n.y.abs()),
+                        tonemap(h.n.z.abs()),
+                        255,
+                    ),
                 ),
                 None => img.put_pixel(x, H - y - 1, Pixel::from_channels(0, 0, 0, 0)),
             }
