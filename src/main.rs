@@ -2,7 +2,7 @@ extern crate image;
 extern crate nalgebra as na;
 
 use image::{Pixel, RgbImage};
-use na::Vector3;
+use na::{Perspective3, Vector3};
 use std::cmp::{max, min};
 
 struct Ray {
@@ -90,6 +90,15 @@ fn main() {
     const W: u32 = 1200;
     const H: u32 = 800;
 
+    let eye = Vector3::new(5.0, 5.0, 5.0);
+    let center = Vector3::new(0.0, 0.0, 0.0);
+    let up = Vector3::new(0.0, 1.0, 0.0);
+    let fov = 30.0 * 3.141593 / 180.0;
+    let aspect = W as f64 / H as f64;
+    let wE = Vector3::normalize(&(eye - center));
+    let uE = Vector3::normalize(&Vector3::cross(&up, &wE));
+    let vE = Vector3::cross(&wE, &uE);
+
     let spheres = vec![
         Sphere {
             p: Vector3::new(-0.5, 0.0, 0.0),
@@ -105,21 +114,23 @@ fn main() {
     let mut img = RgbImage::new(W, H);
     for x in 0..W {
         for y in 0..H {
-            let w = W as f64;
-            let h = H as f64;
+            let tf = (fov * 0.5f64).tan();
+            let rpx = 2.0 * x as f64 / W as f64 - 1.0;
+            let rpy = 2.0 * y as f64 / H as f64 - 1.0;
+            let w = Vector3::normalize(&Vector3::new(aspect * tf * rpx, tf * rpy, -1.0));
             let ray = Ray {
-                o: Vector3::new(2.0 * x as f64 / w - 1.0, 2.0 * y as f64 / h - 1.0, 5.0),
-                d: Vector3::new(0.0, 0.0, -1.0),
+                o: eye,
+                d: uE * w.x + vE * w.y + wE * w.z,
             };
 
             let h = scene.intersect(&ray, 0.0, 1e10);
             match h {
                 Some(h) => img.put_pixel(
                     x,
-                    y,
+                    H - y - 1,
                     Pixel::from_channels(tonemap(h.n.x), tonemap(h.n.y), tonemap(h.n.z), 255),
                 ),
-                None => img.put_pixel(x, y, Pixel::from_channels(0, 0, 0, 0)),
+                None => img.put_pixel(x, H - y - 1, Pixel::from_channels(0, 0, 0, 0)),
             }
         }
     }
