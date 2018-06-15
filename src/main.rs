@@ -3,6 +3,7 @@ extern crate nalgebra as na;
 
 use image::{Pixel, RgbImage};
 use na::Vector3;
+use std::cmp::{max, min};
 
 struct Ray {
     o: Vector3<f64>,
@@ -81,6 +82,10 @@ struct SurfInfo<'a> {
     sphere: Option<&'a Sphere>,
 }
 
+fn tonemap(v: f64) -> u8 {
+    min(max((v.powf(1.0 / 2.2) * 255.0) as u32, 0), 255) as u8
+}
+
 fn main() {
     const W: u32 = 1200;
     const H: u32 = 800;
@@ -103,7 +108,11 @@ fn main() {
 
             let h = scene.intersect(&ray, 0.0, 1e10);
             match h {
-                Some(_) => img.put_pixel(x, y, Pixel::from_channels(255, 0, 255, 255)),
+                Some(h) => img.put_pixel(
+                    x,
+                    y,
+                    Pixel::from_channels(tonemap(h.n.x), tonemap(h.n.y), tonemap(h.n.z), 255),
+                ),
                 None => img.put_pixel(x, y, Pixel::from_channels(0, 0, 0, 0)),
             }
         }
