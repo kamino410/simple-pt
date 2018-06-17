@@ -1,6 +1,6 @@
 [package]
 authors = ["kamino410 <kamino.dev@gmail.com>"]
-name = "learning"
+name = "ray-tracing"
 version = "0.1.0"
 [dependencies]
 image = "0.19.0"

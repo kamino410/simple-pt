@@ -1,10 +1,10 @@
 extern crate image;
-extern crate nalgebra as na;
+extern crate nalgebra;
 extern crate rand;
 extern crate rayon;
 
 use image::RgbImage;
-use na::Vector3;
+use nalgebra::Vector3;
 use rand::prelude::*;
 use rayon::prelude::*;
 use std::cmp::{max, min};
