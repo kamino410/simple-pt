@@ -14,12 +14,17 @@ struct Ray {
     d: Vector3<f64>,
 }
 
+enum Material {
+    Specular,
+    Diffuse,
+}
+
 struct Sphere {
     p: Vector3<f64>,
     r: f64,
     rf: Vector3<f64>,
     le: Vector3<f64>,
-    spc: bool,
+    mat: Material,
 }
 
 impl Sphere {
@@ -123,56 +128,56 @@ fn main() {
             r: 1e5,
             rf: Vector3::new(0.75, 0.25, 0.25),
             le: Vector3::new(0.0, 0.0, 0.0),
-            spc: false,
+            mat: Material::Diffuse,
         },
         Sphere {
             p: Vector3::new(-1e5 + 99.0, 40.8, 81.6),
             r: 1e5,
             rf: Vector3::new(0.25, 0.25, 0.75),
             le: Vector3::new(0.0, 0.0, 0.0),
-            spc: false,
+            mat: Material::Diffuse,
         },
         Sphere {
             p: Vector3::new(50.0, 40.8, 1e5),
             r: 1e5,
             rf: Vector3::new(0.75, 0.75, 0.75),
             le: Vector3::new(0.0, 0.0, 0.0),
-            spc: false,
+            mat: Material::Diffuse,
         },
         Sphere {
             p: Vector3::new(50.0, 1e5, 81.6),
             r: 1e5,
             rf: Vector3::new(0.75, 0.75, 0.75),
             le: Vector3::new(0.0, 0.0, 0.0),
-            spc: false,
+            mat: Material::Diffuse,
         },
         Sphere {
             p: Vector3::new(50.0, -1e5 + 81.6, 81.6),
             r: 1e5,
             rf: Vector3::new(0.75, 0.75, 0.75),
             le: Vector3::new(0.0, 0.0, 0.0),
-            spc: false,
+            mat: Material::Diffuse,
         },
         Sphere {
             p: Vector3::new(27.0, 16.5, 47.0),
             r: 16.5,
             rf: Vector3::new(0.999, 0.999, 0.999),
             le: Vector3::new(0.0, 0.0, 0.0),
-            spc: true,
+            mat: Material::Specular,
         },
         Sphere {
             p: Vector3::new(73.0, 16.5, 78.0),
             r: 16.5,
             rf: Vector3::new(0.999, 0.999, 0.999),
             le: Vector3::new(0.0, 0.0, 0.0),
-            spc: false,
+            mat: Material::Diffuse,
         },
         Sphere {
             p: Vector3::new(50.0, 681.6 - 0.27, 81.6),
             r: 600.0,
             rf: Vector3::new(0.0, 0.0, 0.0),
             le: Vector3::new(12.0, 12.0, 12.0),
-            spc: false,
+            mat: Material::Diffuse,
         },
     ];
     let scene = Scene { spheres };
@@ -211,24 +216,25 @@ fn main() {
                             } else {
                                 -h.n
                             };
-                            if h.sphere.spc {
-                                ray.d + 2.0 * Vector3::dot(&n, &-ray.d) * n
-                            } else {
-                                let (u, v) = tangent_space(&n);
-                                let d = {
-                                    let r = rng.gen::<f64>().sqrt();
-                                    let t = 2.0 * 3.141593 * rng.gen::<f64>();
-                                    let x = r * t.cos();
-                                    let y = r * t.sin();
-                                    let z = 1.0 - x * x - y * y;
-                                    let z = if z < 0.0 {
-                                        0.0
-                                    } else {
-                                        z.sqrt()
+                            match h.sphere.mat {
+                                Material::Specular => ray.d + 2.0 * Vector3::dot(&n, &-ray.d) * n,
+                                Material::Diffuse => {
+                                    let (u, v) = tangent_space(&n);
+                                    let d = {
+                                        let r = rng.gen::<f64>().sqrt();
+                                        let t = 2.0 * 3.141593 * rng.gen::<f64>();
+                                        let x = r * t.cos();
+                                        let y = r * t.sin();
+                                        let z = 1.0 - x * x - y * y;
+                                        let z = if z < 0.0 {
+                                            0.0
+                                        } else {
+                                            z.sqrt()
+                                        };
+                                        Vector3::new(x, y, z)
                                     };
-                                    Vector3::new(x, y, z)
-                                };
-                                u * d.x + v * d.y + n * d.z
+                                    u * d.x + v * d.y + n * d.z
+                                }
                             }
                         };
                         th.x *= h.sphere.rf.x;
